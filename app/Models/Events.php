@@ -34,7 +34,7 @@ class Events extends Model
      */
     public function eventTickets()
     {
-        return $this->hasMany(EventTickets::class);
+        return $this->hasMany(EventTickets::class, 'event_id', 'id');
     }
 
     /**
@@ -42,6 +42,6 @@ class Events extends Model
      */
     public function userEventRegistrations()
     {
-        return $this->hasMany(UserEventRegistration::class);
+        return $this->hasMany(UserEventRegistration::class, 'event_id', 'id');
     }
 }

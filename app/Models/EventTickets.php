@@ -19,7 +19,8 @@ class EventTickets extends Model
     ];
 
     /**
-     * Get the event that owns the ticket.
+     * Get the event that owns the ticket type.
+     * This relationship now points to the singular 'Events' model.
      */
     public function event()
     {
@@ -27,10 +28,27 @@ class EventTickets extends Model
     }
 
     /**
-     * Get the user event registrations for the ticket type.
+     * Get the user event registrations that used this specific ticket type.
+     * This implies UserEventRegistration has an 'event_ticket_id' foreign key.
      */
     public function userEventRegistrations()
     {
         return $this->hasMany(UserEventRegistration::class, 'event_ticket_id');
+    }
+
+    /**
+     * Helper to get the count of confirmed registrations for this specific ticket type.
+     */
+    public function getConfirmedRegistrationsCountAttribute()
+    {
+        return $this->userEventRegistrations()->where('status', 'confirmed')->count();
+    }
+
+    /**
+     * Helper to check if there is capacity available for this specific ticket type.
+     */
+    public function isAvailable()
+    {
+        return $this->confirmed_registrations_count < $this->quantity;
     }
 }

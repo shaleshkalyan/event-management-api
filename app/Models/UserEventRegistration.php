@@ -9,13 +9,12 @@ class UserEventRegistration extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_event_registration';
-
+    protected $table = 'user_event_registrations';
     protected $fillable = [
         'user_id',
         'event_id',
         'event_ticket_id',
-        'status',
+        'status',          // e.g., 'confirmed', 'waiting_list', 'cancelled'
         'registered_at',
         'cancelled_at',
     ];
@@ -42,7 +41,7 @@ class UserEventRegistration extends Model
     }
 
     /**
-     * Get the event ticket associated with the registration.
+     * Get the specific event ticket type associated with the registration.
      */
     public function eventTicket()
     {

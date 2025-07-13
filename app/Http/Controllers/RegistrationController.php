@@ -89,7 +89,7 @@ class RegistrationController extends Controller
     /**
      * Get all event registrations for the authenticated user.
      */
-    public function myRegistrations(Request $request): JsonResponse
+    public function userRegistrations(Request $request): JsonResponse
     {
         try {
             $registrations = $this->registrationService->getUserRegistrations($request->user());

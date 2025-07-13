@@ -12,6 +12,7 @@ use App\Models\EventTickets;
 use App\Models\UserEventRegistration;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\WaitingListNotification;
 
 class RegistrationService implements RegistrationServiceInterface
 {
@@ -112,6 +113,10 @@ class RegistrationService implements RegistrationServiceInterface
             $promotedRegistration = $this->promoteNextWaitingListUser($event, $eventTicket);
 
             if ($promotedRegistration) {
+                $promotedUser = $promotedRegistration->user;
+                    if ($promotedUser) {
+                        $promotedUser->notify(new WaitingListNotification($event, $promotedRegistration));
+                    }
                 return ['status' => 'success', 'message' => 'Registration cancelled. A waiting list spot has been filled and user notified.'];
             }
 

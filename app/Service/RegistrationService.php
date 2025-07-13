@@ -59,7 +59,7 @@ class RegistrationService implements RegistrationServiceInterface
         }
 
         return DB::transaction(function () use ($user, $event, $eventTicket) {
-            $registrationStatus = 'confirmed';
+            $registrationStatus = 'registered';
             $message = 'Successfully registered for the event!';
 
             $currentTicketConfirmed = $this->eventTicketRepository->getConfirmedBookingsCount($eventTicket);
@@ -94,7 +94,7 @@ class RegistrationService implements RegistrationServiceInterface
      */
     public function cancelUserRegistration(UserEventRegistration $registration): array
     {
-        if (!in_array($registration->status, ['confirmed', 'waiting_list'])) {
+        if (!in_array($registration->status, ['registered', 'waiting'])) {
             return ['status' => 'error', 'message' => 'This registration cannot be cancelled.'];
         }
 
@@ -143,7 +143,7 @@ class RegistrationService implements RegistrationServiceInterface
             $nextWaitingUserRegistration = $this->userRegistrationRepository->findNextWaitingListRegistration($event, $eventTicket);
 
             if ($nextWaitingUserRegistration) {
-                $this->userRegistrationRepository->update($nextWaitingUserRegistration, ['status' => 'confirmed']);
+                $this->userRegistrationRepository->update($nextWaitingUserRegistration, ['status' => 'registered']);
                 return $nextWaitingUserRegistration;
             }
         }

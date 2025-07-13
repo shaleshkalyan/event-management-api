@@ -96,6 +96,6 @@ class EventsRepository implements EventsRepositoryInterface
      */
     public function getConfirmedRegistrationsCount(Events $event): int
     {
-        return $event->userEventRegistrations()->where('status', 'confirmed')->count();
+        return $event->userEventRegistrations()->where('status', 'registered')->count();
     }
 }

@@ -51,7 +51,7 @@ class Events extends Model
      */
     public function getCurrentConfirmedCapacityAttribute()
     {
-        return $this->userEventRegistrations()->where('status', 'confirmed')->count();
+        return $this->userEventRegistrations()->where('status', 'registered')->count();
     }
 
     /**
@@ -77,7 +77,7 @@ class Events extends Model
 
         // Get the count of confirmed registrations for this specific ticket type
         $confirmedForType = $this->userEventRegistrations()
-                                 ->where('status', 'confirmed')
+                                 ->where('status', 'registered')
                                  ->where('ticket_type', $ticketType)
                                  ->count();
 

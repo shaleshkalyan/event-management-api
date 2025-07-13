@@ -54,7 +54,7 @@ class UserEventRegistrationRepository implements UserEventRegistrationRepository
         return UserEventRegistration::where('user_id', $user->id)
             ->where('event_id', $event->id)
             ->where('event_ticket_id', $eventTicket->id)
-            ->whereIn('status', ['confirmed', 'waiting'])
+            ->whereIn('status', ['registered', 'waiting'])
             ->first();
     }
 

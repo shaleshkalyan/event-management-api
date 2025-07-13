@@ -14,7 +14,7 @@ class UserEventRegistration extends Model
         'user_id',
         'event_id',
         'event_ticket_id',
-        'status',          // e.g., 'confirmed', 'waiting_list', 'cancelled'
+        'status',
         'registered_at',
         'cancelled_at',
     ];

@@ -41,7 +41,7 @@ class EventTickets extends Model
      */
     public function getConfirmedRegistrationsCountAttribute()
     {
-        return $this->userEventRegistrations()->where('status', 'confirmed')->count();
+        return $this->userEventRegistrations()->where('status', 'registered')->count();
     }
 
     /**

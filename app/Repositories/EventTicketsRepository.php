@@ -35,6 +35,6 @@ class EventTicketsRepository implements EventTicketsRepositoryInterface
      */
     public function getConfirmedBookingsCount(EventTickets $ticket): int
     {
-        return $ticket->userEventRegistrations()->where('status', 'confirmed')->count();
+        return $ticket->userEventRegistrations()->where('status', 'registered')->count();
     }
 }

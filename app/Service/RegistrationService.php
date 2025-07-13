@@ -138,8 +138,9 @@ class RegistrationService implements RegistrationServiceInterface
     protected function promoteNextWaitingListUser(Events $event, EventTickets $eventTicket): ?UserEventRegistration
     {
         $currentTicketConfirmed = $this->eventTicketRepository->getConfirmedBookingsCount($eventTicket);
+        $currentEventConfirmed = $this->eventRepository->getConfirmedRegistrationsCount($event);
 
-        if ($currentTicketConfirmed < $eventTicket->quantity) {
+        if ($currentTicketConfirmed < $eventTicket->quantity && $currentEventConfirmed < $event->capacity) {
             $nextWaitingUserRegistration = $this->userRegistrationRepository->findNextWaitingListRegistration($event, $eventTicket);
 
             if ($nextWaitingUserRegistration) {

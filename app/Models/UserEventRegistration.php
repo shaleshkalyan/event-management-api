@@ -9,7 +9,7 @@ class UserEventRegistration extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_event_registrations';
+    protected $table = 'user_event_registration';
     protected $fillable = [
         'user_id',
         'event_id',

@@ -22,41 +22,22 @@ class EventRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'title' => ['string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'date' => ['date', 'after_or_equal:today'],
-            'venue' => ['string', 'max:255'],
-            'capacity' => ['integer', 'min:1'],
-            'is_recurring' => ['boolean'],
-            'recurrence_type' => ['nullable', 'string', Rule::in(['weekly', 'monthly'])],
-            'event_tickets' => ['sometimes', 'array'],
-            'event_tickets.*.type' => ['required_with:event_tickets', 'string', 'max:255'],
-            'event_tickets.*.price' => ['required_with:event_tickets', 'numeric', 'min:0'],
-            'event_tickets.*.quantity_available' => ['required_with:event_tickets', 'integer', 'min:0'],
+        return [
+            'title'               => ['required', 'string', 'max:255'],
+            'description'         => ['nullable', 'string', 'max:255'],
+            'date'                => ['required', 'date', 'after_or_equal:today'],
+            'venue'               => ['required', 'string', 'max:255'],
+            'capacity'            => ['required', 'integer', 'min:1'],
+            'is_recurring'        => ['required', 'boolean'],
+            'recurrence_type'     => [
+                Rule::requiredIf(fn () => $this->boolean('is_recurring') === true),
+                Rule::in(['weekly', 'monthly']),
+            ],
+            'regularTicketPrice'  => ['required', 'numeric', 'min:0'],
+            'regularTicketCount'  => ['required', 'integer', 'min:1'],
+            'vipTicketPrice'      => ['required', 'numeric', 'min:0'],
+            'vipTicketCount'      => ['required', 'integer', 'min:1'],
         ];
-
-        // rule for 'store' method
-        if ($this->isMethod('post')) {
-            $rules['title'][] = 'required';
-            $rules['date'][] = 'required';
-            $rules['venue'][] = 'required';
-            $rules['capacity'][] = 'required';
-        }
-
-        // For update operations
-        if ($this->isMethod('put') || $this->isMethod('patch')) {
-            $rules['event_tickets.*.id'] = [
-                'sometimes',
-                'integer',
-                Rule::exists('event_tickets', 'id')->where(function ($query) {
-                    $query->where('event_id', $this->route('event')->id);
-                }),
-            ];
-            $rules['recurrence_type'][] = Rule::requiredIf($this->input('is_recurring') === true);
-        }
-
-        return $rules;
     }
     /**
      * Get custom messages for validation errors.
@@ -66,12 +47,33 @@ class EventRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'date.after_or_equal' => 'The event date must be today or a future date.',
-            'capacity.min' => 'The event capacity must be at least 1.',
-            'event_tickets.*.price.min' => 'Ticket price must be a non-negative number.',
-            'event_tickets.*.quantity_available.min' => 'Ticket quantity must be a non-negative integer.',
-            'recurrence_type.required_if' => 'The recurrence type is required when the event is recurring.',
-            'recurrence_type.in' => 'The recurrence type must be either weekly or monthly.',
+            'title.required'                  => 'The event title is required.',
+            'title.string'                    => 'The event title must be a string.',
+            'description.string'              => 'The event description must be a string.',
+            'date.required'                   => 'The event date is required.',
+            'date.date'                       => 'The event date must be a valid date.',
+            'date.after_or_equal'            => 'The event date must be today or in the future.',
+            'venue.required'                  => 'The event venue is required.',
+            'venue.string'                    => 'The event venue must be a string.',
+            'capacity.required'               => 'The event capacity is required.',
+            'capacity.integer'                => 'The event capacity must be an integer.',
+            'capacity.min'                    => 'The event capacity must be at least 1.',
+            'is_recurring.required'           => 'The event recurrence status is required.',
+            'is_recurring.boolean'            => 'The event recurrence status must be true or false.',
+            'recurrence_type.required_if'    => 'The recurrence type is required when the event is recurring.',
+            'recurrence_type.in'             => 'The recurrence type must be either weekly or monthly.',
+            'regularTicketPrice.required'    => 'The regular ticket price is required.',
+            'regularTicketPrice.numeric'     => 'The regular ticket price must be a numeric value.',
+            'regularTicketPrice.min'         => 'The regular ticket price must be at least 0.',
+            'regularTicketCount.required'    => 'The regular ticket count is required.',
+            'regularTicketCount.integer'     => 'The regular ticket count must be an integer.',
+            'regularTicketCount.min'         => 'The regular ticket count must be at least 1.',
+            'vipTicketPrice.required'        => 'The VIP ticket price is required.',
+            'vipTicketPrice.numeric'         => 'The VIP ticket price must be a numeric value.',
+            'vipTicketPrice.min'             => 'The VIP ticket price must be at least 0.',
+            'vipTicketCount.required'        => 'The VIP ticket count is required.',
+            'vipTicketCount.integer'         => 'The VIP ticket count must be an integer.',
+            'vipTicketCount.min'             => 'The VIP ticket count must be at least 1.',
         ];
     }
 }

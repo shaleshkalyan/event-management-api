@@ -18,7 +18,7 @@ class EventTicketsResource extends JsonResource
             'eventId' => $this->event_id,
             'type' => $this->type,
             'price' => (float) $this->price,
-            'quantityAvailable' => (int) $this->quantity_available,
+            'TotalQuantity' => (int) $this->quantity,
             'createdAt' => $this->created_at?->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

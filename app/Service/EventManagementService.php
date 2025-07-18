@@ -49,18 +49,19 @@ class EventManagementService implements EventManagementServiceInterface
      */
     public function createEvent(array $data): Events
     {
-        return $this->eventRepository->create($data);
+        return $this->eventRepository->createEventWithTickets($data);
     }
 
     /**
      * This function is used to update an existing event with new data.
      * @param Events $event The event to update
      * @param array $data The new data to update the event with
-     * @return bool Whether the update was successful
+     * @return Events The updated event
      */
-    public function updateEvent(Events $event, array $data): bool
+    public function updateEvent(Events $event, array $data): Events
     {
-        return $this->eventRepository->update($event, $data);
+        return $this->eventRepository->updateEventWithTickets($event, $data);
+
     }
 
     /**
@@ -70,7 +71,8 @@ class EventManagementService implements EventManagementServiceInterface
      */
     public function deleteEvent(Events $event): bool
     {
-        return $this->eventRepository->delete($event);
+        return $this->eventRepository->deleteEventWithTickets($event);
+
     }
 
     /**
@@ -80,6 +82,6 @@ class EventManagementService implements EventManagementServiceInterface
      */
     public function restoreEvent(int $id): bool
     {
-        return $this->eventRepository->restore($id);
+        return $this->eventRepository->restoreEvent($id);
     }
 }

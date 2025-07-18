@@ -6,6 +6,7 @@ use App\Contracts\EventsRepositoryInterface;
 use App\Models\Events;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class EventsRepository implements EventsRepositoryInterface
 {
@@ -35,26 +36,76 @@ class EventsRepository implements EventsRepositoryInterface
      * @param array $data
      * @return Events
      */
-    public function create(array $data): Events
+    public function createEventWithTickets(array $data): Events
     {
-        $event = Events::create($data);
-        Cache::forget('all_events');
-        return $event;
+        return DB::transaction(function () use ($data) {
+            $event = Events::create([
+                'title'           => $data['title'],
+                'description'     => $data['description'],
+                'date'            => $data['date'],
+                'venue'           => $data['venue'],
+                'capacity'        => $data['capacity'],
+                'is_recurring'    => $data['is_recurring'],
+                'recurrence_type' => $data['recurrence_type'] ?? null,
+            ]);
+
+            $event->eventTickets()->createMany([
+                [
+                    'type'     => 'Regular',
+                    'price'    => $data['regularTicketPrice'],
+                    'quantity' => $data['regularTicketCount'],
+                ],
+                [
+                    'type'     => 'VIP',
+                    'price'    => $data['vipTicketPrice'],
+                    'quantity' => $data['vipTicketCount'],
+                ],
+            ]);
+
+            Cache::forget('all_events');
+            return $event->load('eventTickets');
+        });
     }
 
     /**
      * This function is used to update the event details.
      * @param Events $event
      * @param array $data
-     * @return bool
+     * @return Events
      */
-    public function update(Events $event, array $data): bool
+    public function updateEventWithTickets(Events $event, array $data): Events
     {
-        $updated = $event->update($data);
-        if ($updated) {
+        return DB::transaction(function () use ($event, $data) {
+            $event->update([
+                'title'           => $data['title'],
+                'description'     => $data['description'],
+                'date'            => $data['date'],
+                'venue'           => $data['venue'],
+                'capacity'        => $data['capacity'],
+                'is_recurring'    => $data['is_recurring'],
+                'recurrence_type' => $data['recurrence_type'] ?? null,
+            ]);
+
+            $tickets = [
+                ['type'     => 'Regular', 'price' => $data['regularTicketPrice'], 'quantity' => $data['regularTicketCount']],
+                ['type'     => 'VIP',     'price' => $data['vipTicketPrice'],     'quantity' => $data['vipTicketCount']],
+            ];
+
+            foreach ($tickets as $ticketData) {
+                $event->eventTickets()->updateOrCreate(
+                [
+                    'event_id' => $event->id,
+                    'type'     => $ticketData['type'],
+                ],
+                [
+                    'price'    => $ticketData['price'],
+                    'quantity' => $ticketData['quantity'],
+                ]
+            );
+            }
             Cache::forget('all_events');
-        }
-        return $updated;
+            return $event->load('eventTickets');
+        });
     }
 
     /**
@@ -62,7 +113,7 @@ class EventsRepository implements EventsRepositoryInterface
      * @param Events $event
      * @return bool
      */
-    public function delete(Events $event): bool
+    public function deleteEventWithTickets(Events $event): bool
     {
         $event->delete();
         $isDeleted = $event->trashed();
@@ -77,7 +128,7 @@ class EventsRepository implements EventsRepositoryInterface
      * @param int $id
      * @return bool
      */
-    public function restore(int $id): bool
+    public function restoreEvent(int $id): bool
     {
         $event = Events::withTrashed()->find($id);
         if ($event && $event->trashed()) {

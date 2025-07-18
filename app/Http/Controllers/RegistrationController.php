@@ -27,13 +27,15 @@ class RegistrationController extends Controller
     /**
      * Register the authenticated user for a specific event with a chosen ticket type.
      */
-    public function register(UserEventRegistrationRequest $request, Events $event): JsonResponse
+    public function register(UserEventRegistrationRequest $request): JsonResponse
     {
         try {
             $user = $request->user();
-            $eventTicketId = $request->validated('event_ticket_id');
+            $validated = $request->validated();
+            $eventId = $validated['eventId'];
+            $ticketType = $validated['eventTicketType'];
 
-            $result = $this->registrationService->registerUser($user, $event, $eventTicketId);
+            $result = $this->registrationService->registerUser($user, $eventId, $ticketType);
 
             if ($result['status'] === 'error') {
                 return $this->errorResponse($result['message'], JsonResponse::HTTP_BAD_REQUEST);
@@ -50,7 +52,7 @@ class RegistrationController extends Controller
             $this->logActivity('Failed to register user for event.', [
                 'exception' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'event_id' => $event->id,
+                'event_id' => $eventId,
                 'request_data' => $request->all(),
             ]);
             return $this->errorResponse(

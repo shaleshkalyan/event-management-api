@@ -46,14 +46,14 @@ class UserEventRegistrationRepository implements UserEventRegistrationRepository
      * This function is used to get the existing registration details.
      * @param User $user
      * @param Events $event
-     * @param EventTickets $eventTicket
+     * @param int $eventTicketId
      * @return UserEventRegistration|null
      */
-    public function findExistingActiveRegistration(User $user, Events $event, EventTickets $eventTicket): ?UserEventRegistration
+    public function findExistingActiveRegistration(User $user, Events $event, int $eventTicketId): ?UserEventRegistration
     {
         return UserEventRegistration::where('user_id', $user->id)
             ->where('event_id', $event->id)
-            ->where('event_ticket_id', $eventTicket->id)
+            ->where('event_ticket_id', $eventTicketId)
             ->whereIn('status', ['registered', 'waiting'])
             ->first();
     }
@@ -71,13 +71,13 @@ class UserEventRegistrationRepository implements UserEventRegistrationRepository
     /**
      * This function is used to get the event details with Waiting status
      * @param Events $event
-     * @param EventTickets $eventTicket
+     * @param int $eventTicketId
      * @return UserEventRegistration|null
      */
-    public function findNextWaitingListRegistration(Events $event, EventTickets $eventTicket): ?UserEventRegistration
+    public function findNextWaitingListRegistration(Events $event, int $eventTicketId): ?UserEventRegistration
     {
         return $event->userEventRegistrations()
-            ->where('event_ticket_id', $eventTicket->id)
+            ->where('event_ticket_id', $eventTicketId)
             ->where('status', 'waiting')
             ->orderBy('registered_at', 'asc')
             ->first();

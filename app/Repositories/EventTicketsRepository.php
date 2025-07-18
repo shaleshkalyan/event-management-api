@@ -23,9 +23,19 @@ class EventTicketsRepository implements EventTicketsRepositoryInterface
      * @param int $eventId
      * @return Collection
      */
-    public function getTicketsForEvent(int $eventId): Collection
+    public function getEventTickets(int $eventId): Collection
     {
         return EventTickets::where('event_id', $eventId)->get();
+    }
+    /**
+     * This function is used to get the tickets related to particular event.
+     * @param int $eventId
+     * @param string $ticketType
+     * @return EventTickets
+     */
+    public function getTicketsForEvent(int $eventId, string $ticketType): EventTickets
+    {
+        return EventTickets::where('event_id', $eventId)->where('type', $ticketType)->first();
     }
 
     /**

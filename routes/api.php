@@ -50,5 +50,5 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::delete('/users/registrations/{event}', [RegistrationController::class, 'cancel']);
 
     // Get all registrations for the authenticated user
-    Route::get('/users/registrations', [RegistrationController::class, 'userRegistrations']);
+    Route::get('/users/registrations', [RegistrationController::class, 'getRegistrations']);
 });

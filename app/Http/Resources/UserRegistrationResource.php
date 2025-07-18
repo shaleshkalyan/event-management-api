@@ -18,7 +18,7 @@ class UserRegistrationResource extends JsonResource
             'userId' => $this->user_id,
             'eventId' => $this->event_id,
             'eventTicketId' => $this->event_ticket_id,
-            'registrationDate' => $this->registration_date?->format('Y-m-d H:i:s'),
+            'registrationDate' => $this->updated_at?->format('Y-m-d H:i:s'),
             'status' => $this->status,
             'createdAt' => $this->created_at?->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updated_at?->format('Y-m-d H:i:s'),

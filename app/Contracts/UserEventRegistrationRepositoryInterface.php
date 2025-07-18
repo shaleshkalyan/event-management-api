@@ -13,7 +13,7 @@ interface UserEventRegistrationRepositoryInterface
     public function create(array $data): UserEventRegistration;
     public function find(int $id): ?UserEventRegistration;
     public function update(UserEventRegistration $registration, array $data): bool;
-    public function findExistingActiveRegistration(User $user, Events $event, EventTickets $eventTicket): ?UserEventRegistration;
+    public function findExistingActiveRegistration(User $user, Events $event, int $eventTicketId): ?UserEventRegistration;
     public function getUserRegistrations(User $user): Collection;
-    public function findNextWaitingListRegistration(Events $event, EventTickets $eventTicket): ?UserEventRegistration;
+    public function findNextWaitingListRegistration(Events $event, int $eventTicketId): ?UserEventRegistration;
 }

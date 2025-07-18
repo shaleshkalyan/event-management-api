@@ -22,10 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if ($this->app->environment('local')) {
-            $this->app->register(TelescopeServiceProvider::class);
-        }
-
         $this->app->bind(EventsRepositoryInterface::class, EventsRepository::class);
         $this->app->bind(EventTicketsRepositoryInterface::class, EventTicketsRepository::class);
         $this->app->bind(UserEventRegistrationRepositoryInterface::class, UserEventRegistrationRepository::class);
@@ -36,8 +32,10 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
         //
     }

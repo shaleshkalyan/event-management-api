@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events;
@@ -44,7 +44,7 @@ class RegistrationController extends Controller
             return $this->successResponse(
                 $result['message'],
                 JsonResponse::HTTP_CREATED,
-                ['registration' => (new UserRegistrationResource($result['registration']))->toArray(request())]
+                ['registration' => (new UserRegistrationResource($result['registration']))->resolve()]
             );
         } catch (Throwable $e) {
             $this->logActivity('Failed to register user for event.', [
@@ -93,7 +93,7 @@ class RegistrationController extends Controller
     {
         try {
             $registrations = $this->registrationService->getUserRegistrations($request->user());
-            $registrationData = UserRegistrationResource::collection($registrations)->toArray(request());
+            $registrationData = UserRegistrationResource::collection($registrations)->resolve();
 
             return $this->successResponse(
                 'User registrations retrieved successfully',

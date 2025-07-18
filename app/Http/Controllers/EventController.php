@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events;
@@ -29,7 +29,7 @@ class EventController extends Controller
     {
         try {
             $events = $this->eventService->getAllEvents();
-            $eventData = EventResource::collection($events)->toArray(request());
+            $eventData = EventResource::collection($events)->resolve();
 
             return $this->successResponse(
                 'Events retrieved successfully',
@@ -60,7 +60,7 @@ class EventController extends Controller
             return $this->successResponse(
                 'Event created successfully',
                 JsonResponse::HTTP_CREATED,
-                (new EventResource($event))->toArray(request())
+                (new EventResource($event))->resolve()
             );
         } catch (Throwable $e) {
             $this->logActivity('Failed to create event.', [
@@ -84,7 +84,7 @@ class EventController extends Controller
             return $this->successResponse(
                 'Event details retrieved successfully',
                 JsonResponse::HTTP_OK,
-                (new EventResource($event->load('eventTickets')))->toArray(request())
+                (new EventResource($event->load('eventTickets')))->resolve()
             );
         } catch (Throwable $e) {
             $this->logActivity('Failed to retrieve event details.', [
@@ -112,7 +112,7 @@ class EventController extends Controller
                 return $this->successResponse(
                     'Event updated successfully',
                     JsonResponse::HTTP_OK,
-                    (new EventResource($event->refresh()))->toArray(request())
+                    (new EventResource($event->refresh()))->resolve()
                 );
             }
             return $this->errorResponse('Event update failed. Please check the provided data.', JsonResponse::HTTP_BAD_REQUEST);

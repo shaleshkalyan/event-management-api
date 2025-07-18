@@ -40,23 +40,25 @@ class RegistrationService implements RegistrationServiceInterface
     /**
      * This function is used to register a user for an event with a specific ticket type
      * @param User $user The user to register
-     * @param Events $event The event to register for
-     * @param int $eventTicketId The ID of the ticket type
+     * @param int $eventId The event to register for
+     * @param string $eventTicketType The ticket type
      * @return array Registration result with status, message and registration details
      */
-    public function registerUser(User $user, Events $event, int $eventTicketId): array
+    public function registerUser(User $user, int $eventId, string $eventTicketType): array
     {
-        $eventTicket = $this->eventTicketRepository->find($eventTicketId);
+        $eventTicket = $this->eventTicketRepository->getTicketsForEvent($eventId, $eventTicketType);
+        $event = $this->eventRepository->find($eventId);
 
-        if (!$eventTicket || $eventTicket->event_id !== $event->id) {
+
+        if (!$eventId || !$eventTicketType || !$eventTicket || !$event) {
             return ['status' => 'error', 'message' => 'Invalid ticket for this event.'];
         }
 
-        $existingRegistration = $this->userRegistrationRepository->findExistingActiveRegistration($user, $event, $eventTicket);
+        $existingRegistration = $this->userRegistrationRepository->findExistingActiveRegistration($user, $event, $eventTicket->id);
 
         if ($existingRegistration) {
             $statusMessage = ucfirst($existingRegistration->status);
-            return ['status' => 'conflict', 'message' => "You are already $statusMessage for this event with this ticket type.", 'registration' => $existingRegistration];
+            return ['status' => 'error', 'message' => "You are already $statusMessage for this event with this ticket type.", 'registration' => $existingRegistration];
         }
 
         return DB::transaction(function () use ($user, $event, $eventTicket) {
@@ -90,11 +92,13 @@ class RegistrationService implements RegistrationServiceInterface
 
     /**
      * This function is used to cancel a user's event registration
-     * @param UserEventRegistration $registration The registration to cancel
+     * @param User $user The user cancelling registration.
+     * @param Events $event The registration to be cancelled in event, 
      * @return array Cancellation result with status and message
      */
-    public function cancelUserRegistration(UserEventRegistration $registration): array
+    public function cancelUserRegistration(User $user, Events $event): array
     {
+        $registration = $this->userRegistrationRepository->getUserEventRegistration($user, $event);
         if (!in_array($registration->status, ['registered', 'waiting'])) {
             return ['status' => 'error', 'message' => 'This registration cannot be cancelled.'];
         }
@@ -146,7 +150,7 @@ class RegistrationService implements RegistrationServiceInterface
         $currentEventConfirmed = $this->eventRepository->getConfirmedRegistrationsCount($event);
 
         if ($currentTicketConfirmed < $eventTicket->quantity && $currentEventConfirmed < $event->capacity) {
-            $nextWaitingUserRegistration = $this->userRegistrationRepository->findNextWaitingListRegistration($event, $eventTicket);
+            $nextWaitingUserRegistration = $this->userRegistrationRepository->findNextWaitingListRegistration($event, $eventTicket->id);
 
             if ($nextWaitingUserRegistration) {
                 $this->userRegistrationRepository->update($nextWaitingUserRegistration, ['status' => 'registered']);

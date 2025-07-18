@@ -82,4 +82,13 @@ class UserEventRegistrationRepository implements UserEventRegistrationRepository
             ->orderBy('registered_at', 'asc')
             ->first();
     }
+    /**
+     * This function is used to get the user registration details.
+     * @param User $user
+     * @return UserEventRegistration
+     */
+    public function getUserEventRegistration(User $user, Events $event): UserEventRegistration
+    {
+        return UserEventRegistration::where('user_id', $user->id)->where('event_id', $event->id)->first();
+    }
 }

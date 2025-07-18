@@ -65,10 +65,11 @@ class RegistrationController extends Controller
     /**
      * Cancel a user's event registration.
      */
-    public function cancel(UserEventRegistration $userEventRegistration): JsonResponse
+    public function cancel(Request $request, Events $event): JsonResponse
     {
         try {
-            $result = $this->registrationService->cancelUserRegistration($userEventRegistration);
+            $user = $request->user();
+            $result = $this->registrationService->cancelUserRegistration($user,$event);
 
             if ($result['status'] === 'error') {
                 return $this->errorResponse($result['message'], JsonResponse::HTTP_BAD_REQUEST);
@@ -79,7 +80,7 @@ class RegistrationController extends Controller
             $this->logActivity('Failed to cancel user registration.', [
                 'exception' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'registration_id' => $userEventRegistration->id,
+                'event_id' => $event->id,
             ]);
             return $this->errorResponse(
                 'Could not cancel registration due to an internal server error. Please try again.',

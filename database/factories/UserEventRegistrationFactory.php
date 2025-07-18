@@ -24,27 +24,24 @@ class UserEventRegistrationFactory extends Factory
         ];
     }
 
-    public function registered(): Factory
+    public function registered(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => 'registered',
-            'cancelled_at' => null,
         ]);
     }
 
-    public function waiting(): Factory
+    public function waiting(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => 'waiting',
-            'cancelled_at' => null,
         ]);
     }
 
-    public function cancelled(): Factory
+    public function cancelled(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => 'cancelled',
-            'cancelled_at' => fake()->dateTimeBetween('-1 week', 'now'),
         ]);
     }
 }

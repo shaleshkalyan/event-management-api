@@ -5,85 +5,59 @@ namespace Database\Seeders;
 use App\Models\Events;
 use App\Models\User;
 use App\Models\UserEventRegistration;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UserEventRegistrationSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Get some existing users, events, and tickets
         $users = User::all();
-        $events = Events::all();
+        $events = Events::with('eventTickets')->get();
 
         foreach ($events as $event) {
-            // Get available tickets for this event
-            $eventTickets = $event->eventTickets;
+            $tickets = $event->eventTickets;
+            if ($tickets->isEmpty()) continue;
 
-            if ($eventTickets->isEmpty()) {
-                continue; // Skip if no tickets
-            }
+            // Pick up to 5 random users to attempt registration
+            $candidates = $users->random(min(5, $users->count()));
 
-            // Register a few random users for each event
-            $usersToRegister = $users->random(min(5, $users->count()));
+            foreach ($candidates as $user) {
+                $ticket = $tickets->random();
 
-            foreach ($usersToRegister as $user) {
-                // Pick a random ticket type for the event
-                $randomTicket = $eventTickets->random();
-
-                // Check if a registration already exists (due to unique constraint)
-                $existingRegistration = UserEventRegistration::where('user_id', $user->id)
-                                                             ->where('event_id', $event->id)
-                                                             ->first();
-
-                if (!$existingRegistration) {
-                    try {
-                        UserEventRegistration::factory()
-                            ->registered()
-                            ->create([
-                                'user_id' => $user->id,
-                                'event_id' => $event->id,
-                                'event_ticket_id' => $randomTicket->id,
-                            ]);
-                        if ($randomTicket->quantity > 0) {
-                            $randomTicket->decrement('quantity');
-                        }
-                    } catch (\Illuminate\Database\QueryException $e) {
-                        if (str_contains($e->getMessage(), 'Duplicate entry')) {
-                            $this->command->warn("User {$user->id} already registered for event {$event->id}. Skipping.");
-                        } else {
-                            throw $e;
-                        }
-                    }
+                // Skip if already registered for this event & ticket
+                if (UserEventRegistration::where([
+                    ['user_id', $user->id],
+                    ['event_id', $event->id],
+                    ['event_ticket_id', $ticket->id],
+                ])->exists()) {
+                    continue;
                 }
-            }
-            if ($event->userEventRegistrations()->where('status', 'registered')->count() >= $event->capacity * 0.8) {
-                $waitingUsers = $users->except($usersToRegister->pluck('id'))->random(min(2, $users->count() - $usersToRegister->count()));
-                foreach ($waitingUsers as $user) {
-                    $existingRegistration = UserEventRegistration::where('user_id', $user->id)
-                                                             ->where('event_id', $event->id)
-                                                             ->first();
-                    if (!$existingRegistration) {
-                        try {
-                            UserEventRegistration::factory()
-                                ->waiting()
-                                ->create([
-                                    'user_id' => $user->id,
-                                    'event_id' => $event->id,
-                                    'event_ticket_id' => $eventTickets->random()->id,
-                                ]);
-                        } catch (\Illuminate\Database\QueryException $e) {
-                            if (str_contains($e->getMessage(), 'Duplicate entry')) {
-                                $this->command->warn("User {$user->id} already on waiting list for event {$event->id}. Skipping.");
-                            } else {
-                                throw $e;
-                            }
-                        }
-                    }
-                }
+
+                // Count confirmed (registered) bookings per ticket type and per event
+                $ticketConfirmedCount = UserEventRegistration::where([
+                    ['event_ticket_id', $ticket->id],
+                    ['status', 'registered'],
+                ])->count();
+
+                $eventConfirmedCount = UserEventRegistration::where([
+                    ['event_id', $event->id],
+                    ['status', 'registered'],
+                ])->count();
+
+                // Determine status: waiting if ticket OR event is full
+                $status = ($ticketConfirmedCount >= $ticket->quantity
+                    || $eventConfirmedCount >= $event->capacity)
+                    ? 'waiting'
+                    : 'registered';
+
+                // Seed the registration record
+                UserEventRegistration::factory()
+                    ->{$status === 'registered' ? 'registered' : 'waiting'}()
+                    ->create([
+                        'user_id'           => $user->id,
+                        'event_id'          => $event->id,
+                        'event_ticket_id'   => $ticket->id,
+                    ]);
             }
         }
     }

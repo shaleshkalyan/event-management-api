@@ -16,23 +16,25 @@ class EventTicketsFactory extends Factory
             'event_id' => Events::factory(),
             'type' => fake()->randomElement(['Regular', 'VIP']),
             'price' => fake()->numberBetween(0, 500),
-            'quantity' => fake()->numberBetween(10, 50),
+            'quantity' => fake()->numberBetween(1, 5),
         ];
     }
 
-    public function regular(): Factory
+    public function regular(int $qty, int $price = 50): static
     {
-        return $this->state(fn (array $attributes) => [
-            'type' => 'Regular',
-            'price' => fake()->numberBetween(100, 500),
+        return $this->state([
+            'type'     => 'Regular',
+            'price'    => $price,
+            'quantity' => $qty,
         ]);
     }
 
-    public function vip(): Factory
+    public function vip(int $qty, int $price = 100): static
     {
-        return $this->state(fn (array $attributes) => [
-            'type' => 'VIP',
-            'price' => fake()->numberBetween(500, 5000),
+        return $this->state([
+            'type'     => 'VIP',
+            'price'    => $price,
+            'quantity' => $qty,
         ]);
     }
 }

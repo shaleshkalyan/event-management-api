@@ -41,4 +41,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get the event registrations for the user.
+     */
+    public function eventRegistrations()
+    {
+        return $this->hasMany(UserEventRegistration::class, 'user_id');
+    }
 }

@@ -64,11 +64,12 @@ class EventsRepository implements EventsRepositoryInterface
      */
     public function delete(Events $event): bool
     {
-        $deleted = $event->delete();
-        if ($deleted) {
+        $event->delete();
+        $isDeleted = $event->trashed();
+        if ($isDeleted) {
             Cache::forget('all_events');
         }
-        return $deleted;
+        return $isDeleted;
     }
 
     /**

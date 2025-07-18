@@ -37,17 +37,17 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Event Management (CRUD Operations)
     Route::post('/events', [EventController::class, 'store']);
-    Route::put('/events/{event}', [EventController::class, 'update']);
-    Route::delete('/events/{event}', [EventController::class, 'destroy']);
+    Route::put('/events/{id}', [EventController::class, 'update']);
+    Route::delete('/events/{id}', [EventController::class, 'destroy']);
 
     // Restore soft-deleted event
-    Route::post('/events/{id}/restore', [EventController::class, 'restore']);
+    Route::post('/events/restore', [EventController::class, 'restore']);
 
     // Registration System
-    Route::post('/events/{event}/register', [RegistrationController::class, 'register']);
+    Route::post('/events/register', [RegistrationController::class, 'register']);
 
     // Cancel a specific registration
-    Route::delete('/registrations/{userEventRegistration}', [RegistrationController::class, 'cancel']);
+    Route::delete('/users/registrations/{id}', [RegistrationController::class, 'cancel']);
 
     // Get all registrations for the authenticated user
     Route::get('/users/registrations', [RegistrationController::class, 'userRegistrations']);

@@ -65,8 +65,8 @@ class UserEventRegistrationRepository implements UserEventRegistrationRepository
      */
     public function getUserRegistrations(User $user): Collection
     {
-        return $user->userEventRegistrations()->with(['event', 'eventTicket'])->get();
-    }
+        return $user->eventRegistrations()->with(['event', 'eventTicket'])->get();
+    } 
 
     /**
      * This function is used to get the event details with Waiting status

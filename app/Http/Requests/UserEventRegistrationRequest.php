@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\EventTickets;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,14 +22,14 @@ class UserEventRegistrationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $eventId = $this->route('event')->id;
         return [
-            'event_ticket_id' => [
+            'eventId' => [
                 'required',
                 'integer',
-                Rule::exists(EventTickets::class, 'id')->where(function ($query) use ($eventId) {
-                    $query->where('event_id', $eventId);
-                }),
+            ],
+            'eventTicketType' => [
+                'required',
+                Rule::in('Regular', 'VIP')
             ],
         ];
     }

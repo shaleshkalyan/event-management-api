@@ -15,8 +15,8 @@ class EventTicketsFactory extends Factory
         return [
             'event_id' => Events::factory(),
             'type' => fake()->randomElement(['Regular', 'VIP']),
-            'price' => fake()->numberBetween(0, 500),
-            'quantity' => fake()->numberBetween(1, 5),
+            'price' => fake()->randomElement([100, 200, 300, 400, 500]),
+            'quantity' => fake()->numberBetween(3, 5),
         ];
     }
 
